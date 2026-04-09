@@ -1,0 +1,5 @@
+id,merchant,emoji,item,amount,status,statusLabel,statusColor,tracking,deadline,refundETA
+r1,Amazon,📦,Kindle Paperwhite Case,22.99,shipped,Return Shipped,#1A7DB5,1Z999AA10123456784,Apr 25,3–5 business days after receipt
+r2,Target,🎯,Blue Linen Shirt,34.99,approved,Drop Off by Apr 20,#FF6B35,,Apr 20,Instant in-store
+r3,Nordstrom,👔,Oxford Derby Shoes,245.00,pending,Awaiting Approval,#8A9BB0,,May 9,Pending issuer review
+r4,Apple,🍎,MagSafe Charger,39.00,refunded,Refunded Apr 5,#4AB857,,,Received

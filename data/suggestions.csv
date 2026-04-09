@@ -1,0 +1,5 @@
+type,card,cardColor,urgency,reason,annualSavings,habit,habitEmoji
+upgrade,Amex Gold Card,#B8860B,high,"You spent $412 on dining this month. Amex Gold earns 4x ($49.44 back) vs. your current card ($16.48). That's $32.96/mo extra.",396,dining,🍽️
+new,Amazon Prime Visa,#FF9900,medium,"~$150/mo on Amazon with no Prime Visa. 5% back = $90/year you're leaving on the table.",90,amazon,📦
+downgrade,Amex Platinum → Amex Gold,#A8A9AD,high,"Paying $695/yr for Amex Platinum but travel spend is under $200/mo. Amex Gold ($250 fee) saves $445/year net.",445,travel,✈️
+optimize,Set Citi Custom Cash to Gas,#00845A,low,"Citi Custom Cash isn't assigned to Gas. Change it for 5% back on $143/mo spend = $85.80/year extra.",86,gas,⛽

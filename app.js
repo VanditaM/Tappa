@@ -6,7 +6,172 @@
    ============================================================ */
 
 // ============================================================
-// 1. CARD DATABASE
+// 0. CSV DATA LOADER
+// ============================================================
+
+// Parse a CSV string into an array of objects
+function parseCSV(text) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const vals = splitCSVRow(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (vals[i] ?? '').trim(); });
+    return obj;
+  });
+}
+
+function splitCSVRow(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; continue; }
+    if (c === ',' && !inQ) { result.push(cur); cur = ''; continue; }
+    cur += c;
+  }
+  result.push(cur);
+  return result;
+}
+
+const DataLoader = {
+  async init() {
+    const [cards, cats, hist, budget, subs, returns_, suggest] = await Promise.all([
+      this._csv('data/cards.csv'),
+      this._csv('data/categories.csv'),
+      this._csv('data/history.csv'),
+      this._csv('data/budget.csv'),
+      this._csv('data/subscriptions.csv'),
+      this._csv('data/returns.csv'),
+      this._csv('data/suggestions.csv'),
+    ]);
+
+    // ── CARD_DB ──────────────────────────────────────────────
+    CARD_DB.length = 0;
+    cards.forEach(r => {
+      const card = {
+        id: r.id, name: r.name, issuer: r.issuer,
+        cardType: r.cardType, rewardType: r.rewardType,
+        program: r.program || undefined,
+        pointValue: parseFloat(r.pointValue),
+        color: r.color,
+        rates: {
+          dining:        parseFloat(r.rate_dining),
+          groceries:     parseFloat(r.rate_groceries),
+          gas:           parseFloat(r.rate_gas),
+          travel:        parseFloat(r.rate_travel),
+          amazon:        parseFloat(r.rate_amazon),
+          drugstores:    parseFloat(r.rate_drugstores),
+          entertainment: parseFloat(r.rate_entertainment),
+          streaming:     parseFloat(r.rate_streaming),
+          transit:       parseFloat(r.rate_transit),
+          default:       parseFloat(r.rate_default),
+        },
+      };
+      if (r.quarterPeriod) {
+        card.quarterInfo = {
+          period: r.quarterPeriod,
+          categories: r.quarterCategories.split('|'),
+          displayCategories: r.quarterDisplay.split('|'),
+          activationUrl: r.quarterUrl,
+        };
+      }
+      if (r.customCategoryRate) {
+        card.customCategoryRate = parseFloat(r.customCategoryRate);
+        card.customOptions = CUSTOM_OPTIONS[r.id] || [];
+        card.userCustomCategory = null;
+        card.userCustomCategories = [];
+      }
+      if (r.autoNote) card.autoNote = r.autoNote;
+      CARD_DB.push(card);
+    });
+
+    // ── CATEGORIES ──────────────────────────────────────────
+    CATEGORIES.length = 0;
+    cats.forEach(r => CATEGORIES.push({ id: r.id, label: r.label, emoji: r.emoji }));
+
+    // ── MOCK_HISTORY ─────────────────────────────────────────
+    MOCK_HISTORY.length = 0;
+    hist.forEach(r => MOCK_HISTORY.push({
+      ts: Date.now() - parseFloat(r.hoursAgo) * 3600000,
+      category: r.category,
+      merchant: r.merchant,
+      amount: parseFloat(r.amount),
+      cardId: r.cardId,
+      dollarSaved: parseFloat(r.dollarSaved),
+    }));
+
+    // ── MOCK_BUDGET ──────────────────────────────────────────
+    MOCK_BUDGET.categories = budget.map(r => ({
+      id: r.id, label: r.label, emoji: r.emoji,
+      budget: parseFloat(r.budget), spent: parseFloat(r.spent),
+      trend: parseFloat(r.trend), over: r.over === 'true',
+    }));
+
+    // ── MOCK_SUBSCRIPTIONS ───────────────────────────────────
+    MOCK_SUBSCRIPTIONS.length = 0;
+    subs.forEach(r => MOCK_SUBSCRIPTIONS.push({
+      id: r.id, name: r.name, emoji: r.emoji,
+      price: parseFloat(r.price), owner: r.owner, cat: r.cat,
+      nextBill: r.nextBill, active: r.active === 'true',
+      flag: r.flag || null,
+    }));
+
+    // ── MOCK_RETURNS ─────────────────────────────────────────
+    MOCK_RETURNS.length = 0;
+    returns_.forEach(r => MOCK_RETURNS.push({
+      id: r.id, merchant: r.merchant, emoji: r.emoji,
+      item: r.item, amount: parseFloat(r.amount),
+      status: r.status, statusLabel: r.statusLabel, statusColor: r.statusColor,
+      tracking: r.tracking || null, deadline: r.deadline || null,
+      refundETA: r.refundETA,
+    }));
+
+    // ── MOCK_CARD_SUGGESTIONS ────────────────────────────────
+    MOCK_CARD_SUGGESTIONS.length = 0;
+    suggest.forEach(r => MOCK_CARD_SUGGESTIONS.push({
+      type: r.type, card: r.card, cardColor: r.cardColor, urgency: r.urgency,
+      reason: r.reason, annualSavings: parseFloat(r.annualSavings),
+      habit: r.habit, habitEmoji: r.habitEmoji,
+    }));
+  },
+
+  async _csv(path) {
+    try {
+      const res = await fetch(path);
+      return parseCSV(await res.text());
+    } catch (e) {
+      console.warn(`Failed to load ${path}:`, e);
+      return [];
+    }
+  },
+};
+
+// Custom options for customizable cards (kept in JS — too structured for CSV)
+const CUSTOM_OPTIONS = {
+  'bofa-cc': [
+    { id:'gas',        label:'Gas & EV Charging', emoji:'⛽' },
+    { id:'amazon',     label:'Online Shopping',   emoji:'📦' },
+    { id:'dining',     label:'Dining',             emoji:'🍽️' },
+    { id:'travel',     label:'Travel',             emoji:'✈️' },
+    { id:'drugstores', label:'Drug Stores',        emoji:'💊' },
+    { id:'home',       label:'Home Improvement',   emoji:'🏠' },
+  ],
+  'usb-cash-plus': [
+    { id:'streaming',     label:'TV/Streaming',     emoji:'📺' },
+    { id:'dining',        label:'Fast Food',         emoji:'🍔' },
+    { id:'home',          label:'Home Utilities',    emoji:'🏠' },
+    { id:'transit',       label:'Transit',           emoji:'🚇' },
+    { id:'entertainment', label:'Movie Theaters',    emoji:'🎬' },
+    { id:'electronics',   label:'Electronics',       emoji:'💻' },
+    { id:'gyms',          label:'Gyms & Fitness',    emoji:'🏋️' },
+    { id:'drugstores',    label:'Drug Stores',       emoji:'💊' },
+  ],
+};
+
+// ============================================================
+// 1. CARD DATABASE  (populated from data/cards.csv at boot)
 // ============================================================
 
 const CARD_DB = [
@@ -139,21 +304,10 @@ const CARD_DB = [
 ];
 
 // ============================================================
-// 2. SPENDING CATEGORIES
+// 2. SPENDING CATEGORIES  (populated from data/categories.csv at boot)
 // ============================================================
 
-const CATEGORIES = [
-  { id:'dining',        label:'Dining',        emoji:'🍽️' },
-  { id:'groceries',     label:'Groceries',     emoji:'🛒' },
-  { id:'gas',           label:'Gas',           emoji:'⛽' },
-  { id:'travel',        label:'Travel',        emoji:'✈️' },
-  { id:'amazon',        label:'Amazon',        emoji:'📦' },
-  { id:'drugstores',    label:'Drugstore',     emoji:'💊' },
-  { id:'streaming',     label:'Streaming',     emoji:'📺' },
-  { id:'entertainment', label:'Entertainment', emoji:'🎬' },
-  { id:'transit',       label:'Transit',       emoji:'🚇' },
-  { id:'default',       label:'Everything',    emoji:'🛍️' },
-];
+const CATEGORIES = [];
 
 // Category emoji quick-lookup
 function catEmoji(id) {
@@ -212,69 +366,20 @@ const MOCK_CREDIT = {
   }
 };
 
-const MOCK_SUBSCRIPTIONS = [
-  { id:'netflix',  name:'Netflix',        emoji:'📺', price:15.99, owner:'shared', cat:'entertainment', nextBill:'Apr 18', active:true  },
-  { id:'spotify',  name:'Spotify Family', emoji:'🎵', price:16.99, owner:'shared', cat:'entertainment', nextBill:'Apr 22', active:true  },
-  { id:'amazon',   name:'Amazon Prime',   emoji:'📦', price:14.99, owner:'sarah',  cat:'shopping',      nextBill:'Apr 28', active:true  },
-  { id:'hulu',     name:'Hulu',           emoji:'📡', price:17.99, owner:'shared', cat:'entertainment', nextBill:'May 1',  active:true  },
-  { id:'disney',   name:'Disney+',        emoji:'🏰', price:13.99, owner:'shared', cat:'entertainment', nextBill:'Apr 30', active:true  },
-  { id:'icloud-s', name:'iCloud 200GB',   emoji:'☁️', price:2.99,  owner:'sarah',  cat:'productivity',  nextBill:'Apr 15', active:true  },
-  { id:'icloud-m', name:'iCloud 50GB',    emoji:'☁️', price:0.99,  owner:'mike',   cat:'productivity',  nextBill:'Apr 15', active:true  },
-  { id:'gym',      name:'LA Fitness',     emoji:'🏋️', price:49.99, owner:'mike',   cat:'health',        nextBill:'May 3',  active:true  },
-  { id:'chatgpt',  name:'ChatGPT Plus',   emoji:'🤖', price:20.00, owner:'sarah',  cat:'productivity',  nextBill:'Apr 19', active:true  },
-  { id:'peloton',  name:'Peloton App',    emoji:'🚴', price:44.00, owner:'shared', cat:'health',        nextBill:'Apr 25', active:false, flag:'Last used 47 days ago — consider cancelling' },
-];
+// populated from data/subscriptions.csv at boot
+const MOCK_SUBSCRIPTIONS = [];
 
-const MOCK_RETURNS = [
-  { id:'r1', merchant:'Amazon', emoji:'📦', item:'Kindle Paperwhite Case', amount:22.99,  status:'shipped',  statusLabel:'Return Shipped',        statusColor:'#1A7DB5', tracking:'1Z999AA10123456784', deadline:'Apr 25', refundETA:'3–5 business days after receipt' },
-  { id:'r2', merchant:'Target', emoji:'🎯', item:'Blue Linen Shirt',       amount:34.99,  status:'approved', statusLabel:'Drop Off by Apr 20',    statusColor:'#FF6B35', tracking:null,                  deadline:'Apr 20', refundETA:'Instant in-store' },
-  { id:'r3', merchant:'Nordstrom',emoji:'👔',item:'Oxford Derby Shoes',    amount:245.00, status:'pending',  statusLabel:'Awaiting Approval',     statusColor:'#8A9BB0', tracking:null,                  deadline:'May 9',  refundETA:'Pending issuer review' },
-  { id:'r4', merchant:'Apple',   emoji:'🍎', item:'MagSafe Charger',       amount:39.00,  status:'refunded', statusLabel:'Refunded Apr 5',        statusColor:'#4AB857', tracking:null,                  deadline:null,     refundETA:'Received' },
-];
+// populated from data/returns.csv at boot
+const MOCK_RETURNS = [];
 
-const MOCK_BUDGET = {
-  month:'April 2026', total:2420, spent:2125,
-  categories:[
-    { id:'groceries',     label:'Groceries',      emoji:'🛒', budget:600, spent:487, trend:-3  },
-    { id:'dining',        label:'Dining Out',      emoji:'🍽️',budget:350, spent:412, trend:+18, over:true },
-    { id:'transport',     label:'Gas & Transit',   emoji:'🚗', budget:200, spent:143, trend:-5  },
-    { id:'shopping',      label:'Shopping',        emoji:'🛍️',budget:500, spent:672, trend:+34, over:true },
-    { id:'entertainment', label:'Entertainment',   emoji:'🎬', budget:150, spent:89,  trend:+2  },
-    { id:'subscriptions', label:'Subscriptions',   emoji:'📱', budget:220, spent:198, trend:0   },
-    { id:'health',        label:'Health',          emoji:'💊', budget:100, spent:124, trend:+24, over:true },
-    { id:'travel',        label:'Travel',          emoji:'✈️', budget:300, spent:0,   trend:0   },
-  ]
-};
+// populated from data/budget.csv at boot
+const MOCK_BUDGET = { month:'April 2026', total:2420, spent:2125, categories:[] };
 
-const MOCK_CARD_SUGGESTIONS = [
-  { type:'upgrade',   card:'Amex Gold Card',              cardColor:'#B8860B', urgency:'high',
-    reason:'You spent $412 on dining this month. Amex Gold earns 4x ($49.44 back) vs. your current card ($16.48). That\'s $32.96/mo extra.',
-    annualSavings:396, habit:'dining', habitEmoji:'🍽️' },
-  { type:'new',       card:'Amazon Prime Visa',            cardColor:'#FF9900', urgency:'medium',
-    reason:'~$150/mo on Amazon with no Prime Visa. 5% back = $90/year you\'re leaving on the table.',
-    annualSavings:90, habit:'amazon', habitEmoji:'📦' },
-  { type:'downgrade', card:'Amex Platinum → Amex Gold',   cardColor:'#A8A9AD', urgency:'high',
-    reason:'Paying $695/yr for Amex Platinum but travel spend is under $200/mo. Amex Gold ($250 fee) saves $445/year net.',
-    annualSavings:445, habit:'travel', habitEmoji:'✈️' },
-  { type:'optimize',  card:'Set Citi Custom Cash to Gas',  cardColor:'#00845A', urgency:'low',
-    reason:'Citi Custom Cash isn\'t assigned to Gas. Change it for 5% back on $143/mo spend = $85.80/year extra.',
-    annualSavings:86, habit:'gas', habitEmoji:'⛽' },
-];
+// populated from data/suggestions.csv at boot
+const MOCK_CARD_SUGGESTIONS = [];
 
-const MOCK_HISTORY = [
-  { ts: Date.now()-1*3600000,   category:'dining',       merchant:'Nobu',               amount:124, cardId:'csp',       dollarSaved:2.48  },
-  { ts: Date.now()-5*3600000,   category:'groceries',    merchant:'Whole Foods',        amount:87,  cardId:'amex-gold', dollarSaved:6.09  },
-  { ts: Date.now()-1*86400000,  category:'dining',       merchant:'Blue Bottle Coffee', amount:18,  cardId:'amex-gold', dollarSaved:1.26  },
-  { ts: Date.now()-1*86400000,  category:'gas',          merchant:'Shell',              amount:55,  cardId:'citi-cc',   dollarSaved:4.40  },
-  { ts: Date.now()-2*86400000,  category:'shopping',     merchant:'Target',             amount:134, cardId:'cff',       dollarSaved:1.34  },
-  { ts: Date.now()-2*86400000,  category:'dining',       merchant:'Chipotle',           amount:22,  cardId:'amex-gold', dollarSaved:1.54  },
-  { ts: Date.now()-3*86400000,  category:'groceries',    merchant:"Trader Joe's",       amount:63,  cardId:'amex-gold', dollarSaved:4.41  },
-  { ts: Date.now()-3*86400000,  category:'transit',      merchant:'Lyft',               amount:18,  cardId:'csp',       dollarSaved:0.54  },
-  { ts: Date.now()-4*86400000,  category:'entertainment',merchant:'AMC Theatres',       amount:38,  cardId:'cff',       dollarSaved:1.90  },
-  { ts: Date.now()-4*86400000,  category:'dining',       merchant:'Sweetgreen',         amount:16,  cardId:'amex-gold', dollarSaved:1.12  },
-  { ts: Date.now()-5*86400000,  category:'groceries',    merchant:'Costco',             amount:210, cardId:'amex-gold', dollarSaved:14.70 },
-  { ts: Date.now()-6*86400000,  category:'shopping',     merchant:'Amazon',             amount:67,  cardId:'cff',       dollarSaved:0.67  },
-];
+// populated from data/history.csv at boot
+const MOCK_HISTORY = [];
 
 // ============================================================
 // 4. GEO-LOCATION + NEARBY MERCHANT SEARCH
@@ -2465,12 +2570,23 @@ function showToast(msg, ms = 2600) {
 // 11. BOOT
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Bind click delegation ONCE — survives all re-renders
   document.getElementById('app').addEventListener('click', e => {
     const el = e.target.closest('[data-action]');
     if (el) Actions.handle(el.dataset.action, el.dataset, el);
   });
+
+  // Show loading state while CSV data files load
+  document.getElementById('app').innerHTML = `
+    <div style="min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--navy);gap:16px">
+      <div style="font-size:40px;font-weight:900;color:white;letter-spacing:-0.03em">Tappa</div>
+      <div style="width:32px;height:32px;border:3px solid rgba(255,255,255,0.2);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite"></div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    </div>`;
+
+  // Load all CSV data files, then boot
+  await DataLoader.init();
 
   const data = Store.getState();
   App.navigate(data.onboarded ? 'home' : 'welcome');

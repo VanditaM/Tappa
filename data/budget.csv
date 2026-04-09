@@ -1,0 +1,9 @@
+id,label,emoji,budget,spent,trend,over
+groceries,Groceries,🛒,600,487,-3,false
+dining,Dining Out,🍽️,350,412,18,true
+transport,Gas & Transit,🚗,200,143,-5,false
+shopping,Shopping,🛍️,500,672,34,true
+entertainment,Entertainment,🎬,150,89,2,false
+subscriptions,Subscriptions,📱,220,198,0,false
+health,Health,💊,100,124,24,true
+travel,Travel,✈️,300,0,0,false

@@ -1,0 +1,16 @@
+id,name,issuer,cardType,rewardType,program,pointValue,color,rate_dining,rate_groceries,rate_gas,rate_travel,rate_amazon,rate_drugstores,rate_entertainment,rate_streaming,rate_transit,rate_default,quarterPeriod,quarterCategories,quarterDisplay,quarterUrl,customCategoryRate,autoNote
+csp,Chase Sapphire Preferred,Chase,static,points,Chase Ultimate Rewards,1.5,#1B3A6B,3,1,1,3,1,1,1,3,2,1,,,,,,
+csr,Chase Sapphire Reserve,Chase,static,points,Chase Ultimate Rewards,1.5,#2D2D2D,3,1,1,10,1,1,1,1,3,1,,,,,,
+cff,Chase Freedom Flex,Chase,rotating,points,Chase Ultimate Rewards,1.0,#003087,3,1,1,1,1,3,1,1,1,1,Q2 2026 (Apr – Jun),gas|ev-charging,Gas Stations|EV Charging,https://creditcards.chase.com/freedom-flex,,
+cfu,Chase Freedom Unlimited,Chase,static,points,Chase Ultimate Rewards,1.0,#1A5276,3,1.5,1.5,5,1.5,3,1.5,1.5,1.5,1.5,,,,,,
+amex-gold,Amex Gold Card,American Express,static,points,Amex Membership Rewards,1.5,#B8860B,4,4,1,3,1,1,1,1,1,1,,,,,,
+amex-plat,Amex Platinum Card,American Express,static,points,Amex Membership Rewards,2.0,#A8A9AD,1,1,1,5,1,1,1,1,1,1,,,,,,
+citi-dc,Citi Double Cash Card,Citi,static,cashback,,1.0,#003B70,2,2,2,2,2,2,2,2,2,2,,,,,,
+citi-cc,Citi Custom Cash Card,Citi,auto-custom,cashback,,1.0,#00845A,1,1,1,1,1,1,1,1,1,1,,,,,,"Auto-earns 5% on your top spend category each billing cycle"
+c1-venture,Capital One Venture,Capital One,static,miles,Capital One Miles,1.0,#C0392B,2,2,2,5,2,2,2,2,2,2,,,,,,
+c1-savor,Capital One Savor Cash Rewards,Capital One,static,cashback,,1.0,#721422,3,3,1,1,1,1,3,3,1,1,,,,,,
+discover-it,Discover it Cash Back,Discover,rotating,cashback,,1.0,#FF6600,1,1,1,1,1,1,1,1,1,1,Q2 2026 (Apr – Jun),dining|paypal,Restaurants|PayPal,https://www.discover.com/credit-cards/cashback-bonus/,,
+bofa-cc,BofA Customized Cash Rewards,Bank of America,customizable,cashback,,1.0,#E31837,2,2,1,1,1,1,1,1,1,1,,,,3,
+usb-cash-plus,US Bank Cash+ Visa,US Bank,customizable,cashback,,1.0,#002F6C,1,2,1,1,1,1,1,1,1,1,,,,5,
+wf-active-cash,Wells Fargo Active Cash,Wells Fargo,static,cashback,,1.0,#CF2026,2,2,2,2,2,2,2,2,2,2,,,,,,
+apple-card,Apple Card,Goldman Sachs,static,cashback,,1.0,#1C1C1E,2,2,2,2,1,2,2,2,2,1,,,,,,
