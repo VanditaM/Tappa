@@ -1,0 +1,11 @@
+id,name,emoji,price,owner,cat,nextBill,active,flag
+netflix,Netflix,📺,15.99,shared,entertainment,Apr 18,true,
+spotify,Spotify Family,🎵,16.99,shared,entertainment,Apr 22,true,
+amazon,Amazon Prime,📦,14.99,sarah,shopping,Apr 28,true,
+hulu,Hulu,📡,17.99,shared,entertainment,May 1,true,
+disney,Disney+,🏰,13.99,shared,entertainment,Apr 30,true,
+icloud-s,iCloud 200GB,☁️,2.99,sarah,productivity,Apr 15,true,
+icloud-m,iCloud 50GB,☁️,0.99,mike,productivity,Apr 15,true,
+gym,LA Fitness,🏋️,49.99,mike,health,May 3,true,
+chatgpt,ChatGPT Plus,🤖,20.00,sarah,productivity,Apr 19,true,
+peloton,Peloton App,🚴,44.00,shared,health,Apr 25,false,Last used 47 days ago — consider cancelling

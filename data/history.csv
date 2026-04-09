@@ -1,0 +1,13 @@
+hoursAgo,category,merchant,amount,cardId,dollarSaved
+1,dining,Nobu,124,csp,2.48
+5,groceries,Whole Foods,87,amex-gold,6.09
+24,dining,Blue Bottle Coffee,18,amex-gold,1.26
+24,gas,Shell,55,citi-cc,4.40
+48,shopping,Target,134,cff,1.34
+48,dining,Chipotle,22,amex-gold,1.54
+72,groceries,Trader Joe's,63,amex-gold,4.41
+72,transit,Lyft,18,csp,0.54
+96,entertainment,AMC Theatres,38,cff,1.90
+96,dining,Sweetgreen,16,amex-gold,1.12
+120,groceries,Costco,210,amex-gold,14.70
+144,shopping,Amazon,67,cff,0.67
