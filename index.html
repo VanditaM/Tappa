@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Tappa — Tap smarter. Keep more.</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FF6B35">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tappa">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="apple-touch-startup-image" href="icon.svg">
+  <meta name="description" content="Your AI card co-pilot — instantly knows which card earns the most, everywhere you spend.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'tappa-orange':  '#FF6B35',
+            'tappa-orange-dark': '#E55A25',
+            'tappa-blue':    '#A8D8F0',
+            'tappa-blue-dark': '#5BB8E8',
+            'tappa-yellow':  '#FAE96E',
+            'tappa-green':   '#6BCB77',
+            'tappa-green-dark': '#4AB857',
+            'tappa-dark':    '#1A1A2E',
+            'tappa-gray':    '#8A9BB0',
+            'tappa-off':     '#F7F8FA',
+          },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="bg-tappa-off font-sans antialiased">
+  <div id="app"></div>
+  <div id="toast-container"></div>
+  <script src="app.js"></script>
+</body>
+</html>
